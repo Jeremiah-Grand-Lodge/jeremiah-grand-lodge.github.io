@@ -72,6 +72,7 @@ onAuthStateChanged(auth, async user=>{
       await setDoc(userRef,{displayName:name});
     }
     loadPosts();
+    watchPostingSetting();
   }
 });
 
@@ -150,4 +151,11 @@ async function loadPosts(){
 
     });
   });
+async function watchPostingSetting(){
+  const ref = doc(db,"settings","site");
+  onSnapshot(ref, snap=>{
+    if(snap.exists()) allowPosting = snap.data().allowPosting;
+  });
+}
+
 }
