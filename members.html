@@ -3,39 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Members Portal - Jeremiah Grand Lodge</title>
+<title>Members Message Board - Jeremiah Grand Lodge</title>
 <style>
+  body {
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    margin:0; padding:0;
+  }
+  header {
+    background:#003366;
+    color:white;
+    text-align:center;
+    padding:20px;
+  }
   .main-nav {
-  background: #003366;
-  color: white;
-  padding: 10px 0;
-  text-align: center;
-}
-
-.main-nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.main-nav li {
-  display: inline-block;
-  margin: 0 15px;
-}
-
-.main-nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.main-nav a:hover {
-  text-decoration: underline;
-}
-
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
-  header { background:#003366; color:white; text-align:center; padding:20px; }
-  header img { width:100%; max-height:120px; object-fit:contain; margin-top:10px; }
+    background: #0055a5;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .main-nav ul { list-style:none; margin:0; padding:0; }
+  .main-nav li { display:inline-block; margin:0 15px; }
+  .main-nav a { color:white; text-decoration:none; font-weight:bold; }
+  .main-nav a:hover { text-decoration:underline; }
   #content { padding:20px; max-width:900px; margin:auto; }
   #postArea { background:white; padding:15px; border-radius:10px; margin-bottom:20px; }
   input, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
@@ -43,33 +32,34 @@
   button:hover { background:#0055a5; }
   .message { background:white; padding:10px; border-radius:8px; margin-bottom:10px; box-shadow:1px 1px 4px rgba(0,0,0,0.1);}
   .message strong { display:block; }
-  .reply { margin-left:20px; font-size:0.9em; }
 </style>
 </head>
 <body>
+
+<header>
+  <h1>Members Message Board</h1>
+  <p>Welcome! Post messages and reply to threads below.</p>
+</header>
+
 <nav class="main-nav">
   <ul>
     <li><a href="index.html">Home</a></li>
-    <li><a href="members.html">Members Portal</a></li>
-    <li><a href="#messages">Message Board</a></li>
+    <li><a href="members.html">Members Message Board</a></li>
   </ul>
 </nav>
-
-<header>
-  <nav class="main-nav">
-  <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="members.html">Members Portal</a></li>
-    <li><a href="#messages">Message Board</a></li>
-  </ul>
-</nav>
-
-  <h1>Members Portal</h1>
-  <p>Welcome! Post messages and reply to threads below.</p>
-  <img src="images/lodge-banner.svg" alt="Lodge Banner">
-</header>
 
 <div id="content">
+
+  <!-- Login Section -->
+  <div id="loginArea">
+    <input id="email" placeholder="Email" type="email">
+    <input id="password" placeholder="Password" type="password">
+    <button id="loginBtn">Login</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- Admin Toggle -->
+  <button id="togglePosting" class="hidden">Disable Posting</button>
 
   <!-- Post Area -->
   <div id="postArea">
@@ -79,12 +69,10 @@
   </div>
 
   <!-- Messages Display -->
-  <div id="messages">
-    <!-- Placeholder: Messages will load here from Firebase -->
-  </div>
+  <div id="messages"></div>
 
 </div>
 
-<script type="module" src="/members.js"></script>
+<script type="module" src="members.js"></script>
 </body>
 </html>
