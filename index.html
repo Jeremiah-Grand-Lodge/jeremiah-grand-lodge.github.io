@@ -5,18 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jeremiah Grand Lodge, AF&AM</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f8f8;
-    margin:0; padding:0;
-  }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f8f8f8; }
   header { background:#003366; color:white; padding:20px; text-align:center; }
-  .main-nav { background: #0055a5; text-align:center; padding:10px 0; }
-  .main-nav ul { list-style:none; margin:0; padding:0; }
-  .main-nav li { display:inline-block; margin:0 15px; }
-  .main-nav a { color:white; text-decoration:none; font-weight:bold; }
-  .main-nav a:hover { text-decoration:underline; }
   section { padding:20px; }
+  h1, h2 { margin:10px 0; }
+  .lodge-container { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
+  .card { background:white; border-radius:10px; padding:15px; width:220px; text-align:center;
+          box-shadow:2px 2px 8px rgba(0,0,0,0.1); }
+  .card img { width:60px; height:60px; margin-bottom:10px; }
+  a.button { display:inline-block; margin-top:10px; padding:8px 12px; background:#003366; color:white; border-radius:5px; text-decoration:none; }
 </style>
 </head>
 <body>
@@ -24,18 +21,55 @@
 <header>
   <h1>Welcome to Jeremiah Grand Lodge, AF&AM</h1>
   <p>Connecting Brothers across all lodges. Explore our lodges and access the members-only portal.</p>
+  <a href="members.html" class="button">Go to Members Portal</a>
 </header>
-
-<nav class="main-nav">
-  <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="members.html">Members Message Board</a></li>
-  </ul>
-</nav>
 
 <section>
   <h2>Our Lodges</h2>
-  <p>Placeholder text describing your lodges. You can add cards, images, or graphics here.</p>
+  <div class="lodge-container">
+    <!-- Blue Lodge 1 -->
+    <div class="card">
+      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
+      <h3>Blue Lodge #1</h3>
+      <p>Placeholder description of Lodge #1.</p>
+    </div>
+    <!-- Blue Lodge 2 -->
+    <div class="card">
+      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
+      <h3>Blue Lodge #2</h3>
+      <p>Placeholder description of Lodge #2.</p>
+    </div>
+    <!-- Blue Lodge 3 -->
+    <div class="card">
+      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
+      <h3>Blue Lodge #3</h3>
+      <p>Placeholder description of Lodge #3.</p>
+    </div>
+    <!-- Blue Lodge 4 -->
+    <div class="card">
+      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
+      <h3>Blue Lodge #4</h3>
+      <p>Placeholder description of Lodge #4.</p>
+    </div>
+    <!-- Blue Lodge 5 -->
+    <div class="card">
+      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
+      <h3>Blue Lodge #5</h3>
+      <p>Placeholder description of Lodge #5.</p>
+    </div>
+    <!-- Shriner House -->
+    <div class="card">
+      <img src="images/shrine.svg" alt="Shriner House Icon">
+      <h3>Shriner House</h3>
+      <p>Placeholder description of the Shriner House.</p>
+    </div>
+    <!-- 33rd Degree House -->
+    <div class="card">
+      <img src="images/33rd-degree.svg" alt="33rd Degree Icon">
+      <h3>33rd Degree House</h3>
+      <p>Placeholder description of the 33rd Degree House.</p>
+    </div>
+  </div>
 </section>
 
 </body>
