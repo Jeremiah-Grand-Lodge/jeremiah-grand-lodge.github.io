@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
 <meta charset="UTF-8">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
 <style>
 body{font-family:Georgia,serif;background:#F7F6F2;padding:20px}
 .hidden{display:none}
-.post{background:#fff;padding:12px;border:1px solid #ddd;margin-bottom:10px}
+.post{background:#fff;border:1px solid #ddd;padding:12px;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -18,22 +15,26 @@ body{font-family:Georgia,serif;background:#F7F6F2;padding:20px}
 
 <div id="login">
 <input id="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
-<button onclick="login()">Login</button>
+<input id="password" type="password"><br>
+<button id="loginBtn">Login</button>
 </div>
 
 <div id="content" class="hidden">
-<button onclick="logout()">Logout</button>
+<button id="logoutBtn">Logout</button>
 <h3>Member Messages</h3>
 <div id="posts"></div>
 
 <h4>New Message</h4>
 <input id="title" placeholder="Title"><br>
 <textarea id="body"></textarea><br>
-<button onclick="post()">Post</button>
+<button id="postBtn">Post</button>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const firebaseConfig = const firebaseConfig = {
   apiKey: "XXXXX",
   authDomain: "XXXXX.firebaseapp.com",
@@ -44,35 +45,32 @@ const firebaseConfig = const firebaseConfig = {
 };
 ;
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-auth.onAuthStateChanged(user=>{
- document.getElementById('login').classList.toggle('hidden',!!user);
- document.getElementById('content').classList.toggle('hidden',!user);
- load();
-});
+loginBtn.onclick = ()=>signInWithEmailAndPassword(auth,email.value,password.value);
+logoutBtn.onclick = ()=>signOut(auth);
 
-function login(){
- auth.signInWithEmailAndPassword(email.value,password.value);
-}
+postBtn.onclick = async ()=>{
+ await addDoc(collection(db,"posts"),{title:title.value,body:body.value,ts:Date.now()});
+ title.value=''; body.value='';
+};
 
-function logout(){ auth.signOut(); }
-
-function post(){
- db.collection("posts").add({title:title.value,body:body.value,ts:Date.now()});
-}
-
-function load(){
- db.collection("posts").orderBy("ts","desc").onSnapshot(s=>{
-  posts.innerHTML='';
-  s.forEach(d=>{
-   let p=d.data();
-   posts.innerHTML+=`<div class="post"><b>${p.title}</b><br>${p.body}</div>`;
+onAuthStateChanged(auth,user=>{
+ login.classList.toggle("hidden",!!user);
+ content.classList.toggle("hidden",!user);
+ if(user){
+  const q=query(collection(db,"posts"),orderBy("ts","desc"));
+  onSnapshot(q,s=>{
+   posts.innerHTML='';
+   s.forEach(d=>{
+    const p=d.data();
+    posts.innerHTML+=`<div class="post"><b>${p.title}</b><br>${p.body}</div>`;
+   });
   });
- });
-}
+ }
+});
 </script>
 
 </body>
