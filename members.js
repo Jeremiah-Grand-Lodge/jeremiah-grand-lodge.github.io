@@ -32,6 +32,7 @@ const email = document.getElementById('email');
 const password = document.getElementById('password');
 const title = document.getElementById('title');
 const body = document.getElementById('body');
+const togglePosting = document.getElementById("togglePosting");
 
 // ---------- LOGIN ----------
 loginBtn.onclick = () => signInWithEmailAndPassword(auth,email.value,password.value)
