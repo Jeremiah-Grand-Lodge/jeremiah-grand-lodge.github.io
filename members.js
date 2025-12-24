@@ -1,7 +1,7 @@
 // ------------------ Firebase Imports ------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ------------------ Firebase Config ------------------
 const firebaseConfig = {
@@ -26,6 +26,8 @@ const title = document.getElementById("title");
 const body = document.getElementById("body");
 const messagesDiv = document.getElementById("messages");
 const togglePosting = document.getElementById("togglePosting");
+const loginArea = document.getElementById("loginArea");
+const postArea = document.getElementById("postArea");
 
 // ------------------ Variables ------------------
 const adminEmails = ["stephanie.l.washington@gmail.com"];
@@ -38,6 +40,7 @@ async function watchPostingSetting(){
     if(snap.exists()) allowPosting = snap.data().allowPosting;
     if(togglePosting){
       togglePosting.textContent = allowPosting ? "Disable Posting" : "Enable Posting";
+      postArea.style.display = allowPosting ? "block" : "none";
     }
   });
 }
@@ -51,20 +54,58 @@ function loadPosts(){
       const data = docSnap.data();
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("message");
+      let adminButtons = "";
+
+      // Admin delete button
+      if(adminEmails.includes(auth.currentUser?.email)){
+        adminButtons = `<button onclick="deletePost('${docSnap.id}')">Delete</button>`;
+      }
+
+      // Reply button
+      const replyBtn = `<button onclick="replyToPost('${docSnap.id}')">Reply</button>`;
+
       msgDiv.innerHTML = `<strong>${data.name} — ${new Date(data.ts).toLocaleString()}</strong>
                           <h4>${data.title}</h4>
-                          <p>${data.body}</p>`;
+                          <p>${data.body}</p>
+                          ${replyBtn} ${adminButtons}
+                          <div id="replies-${docSnap.id}" class="replies"></div>`;
       messagesDiv.appendChild(msgDiv);
+
+      // Load replies
+      loadReplies(docSnap.id);
+    });
+  });
+}
+
+// ------------------ Load Replies ------------------
+function loadReplies(postId){
+  const repliesDiv = document.getElementById(`replies-${postId}`);
+  const q = query(collection(db,"posts",postId,"replies"), orderBy("ts","asc"));
+  onSnapshot(q, snapshot=>{
+    repliesDiv.innerHTML = "";
+    snapshot.forEach(docSnap=>{
+      const r = docSnap.data();
+      const rDiv = document.createElement("div");
+      rDiv.style.marginLeft = "20px";
+      rDiv.innerHTML = `<strong>${r.name} — ${new Date(r.ts).toLocaleString()}</strong>
+                        <p>${r.body}</p>`;
+      repliesDiv.appendChild(rDiv);
     });
   });
 }
 
 // ------------------ Login / Logout ------------------
 loginBtn.onclick = async () => {
-  try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); }
-  catch(err){ alert("Login failed: " + err.message); }
+  try {
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  } catch(err) {
+    alert("Login failed: " + err.message);
+  }
 };
-logoutBtn.onclick = async () => { await signOut(auth); };
+
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+};
 
 // ------------------ Post Message ------------------
 postBtn.onclick = async () => {
@@ -90,6 +131,27 @@ postBtn.onclick = async () => {
   }
 };
 
+// ------------------ Reply to Post ------------------
+window.replyToPost = async (postId) => {
+  const replyText = prompt("Enter your reply:");
+  if(!replyText) return;
+  const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
+  const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
+  await addDoc(collection(db,"posts",postId,"replies"),{
+    body: replyText,
+    ts: Date.now(),
+    name: displayName,
+    uid: auth.currentUser.uid
+  });
+};
+
+// ------------------ Delete Post (Admin) ------------------
+window.deletePost = async (postId) => {
+  if(!adminEmails.includes(auth.currentUser?.email)) return;
+  if(!confirm("Are you sure you want to delete this post?")) return;
+  await deleteDoc(doc(db,"posts",postId));
+};
+
 // ------------------ Admin Toggle ------------------
 if(togglePosting){
   togglePosting.onclick = async () => {
@@ -101,6 +163,11 @@ if(togglePosting){
 // ------------------ Auth State ------------------
 onAuthStateChanged(auth, async user => {
   if(user){
+    // Hide login inputs, show logout
+    loginArea.style.display = "none";
+    postArea.style.display = allowPosting ? "block" : "none";
+    logoutBtn.style.display = "inline-block";
+
     // Prompt for display name if first login
     const userRef = doc(db,"users",user.uid);
     const userSnap = await getDoc(userRef);
@@ -118,5 +185,11 @@ onAuthStateChanged(auth, async user => {
     // Load posts & watch posting setting
     loadPosts();
     watchPostingSetting();
+  } else {
+    // Logged out: show login, hide posting
+    loginArea.style.display = "block";
+    postArea.style.display = "none";
+    logoutBtn.style.display = "none";
+    if(togglePosting) togglePosting.classList.add("hidden");
   }
 });
