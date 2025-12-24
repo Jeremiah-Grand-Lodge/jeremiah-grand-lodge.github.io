@@ -182,14 +182,15 @@ onAuthStateChanged(auth, async user => {
       togglePosting.classList.remove("hidden");
     }
 
-    // Load posts & watch posting setting
+    // Load posts & watch posting setting **ONLY after login**
     loadPosts();
     watchPostingSetting();
   } else {
-    // Logged out: show login, hide posting
+    // Logged out: show login, hide posting, hide messages
     loginArea.style.display = "block";
     postArea.style.display = "none";
     logoutBtn.style.display = "none";
+    messagesDiv.innerHTML = "";           // <--- hide all messages
     if(togglePosting) togglePosting.classList.add("hidden");
   }
 });
