@@ -16,7 +16,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ---------- ADMIN ----------
-const adminEmails = ["your-email@example.com"];
+const adminEmails = ["stephanie.l.washington@gmail.com"];
 let allowPosting = true;
 
 // ---------- DOM ----------
