@@ -2,54 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Members Portal - Jeremiah Grand Lodge</title>
 <style>
-body { font-family: Georgia, serif; background: #F7F6F2; padding:20px; color:#2E2E2E; }
-h2 { text-align: center; margin-bottom: 20px; }
-.hidden { display:none; }
-
-#login input, #login button,
-#content input, #content textarea, #content button {
-  display:block; margin:8px 0; padding:8px; font-size:1rem; width:100%; max-width:400px;
-}
-
-button { cursor:pointer; background:#1F2A44; color:#fff; border:none; border-radius:4px; }
-
-#posts { margin-top:30px; }
-
-.post { background:#fff; border:1px solid #ddd; padding:12px; margin-bottom:20px; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
-.post small { color:#555; display:block; margin-bottom:6px; }
-.replies { margin-top:10px; padding-left:20px; border-left:2px solid #ccc; }
-.replies div { background:#f9f9f9; padding:6px; margin-bottom:6px; border-radius:4px; }
-.replyInput, .replyBtn { margin-top:6px; width: calc(100% - 10px); }
-.admin-btn { background:#B53131; margin-left:10px; padding:4px 8px; font-size:0.9rem; }
-header { background:#1F2A44; color:#fff; padding:20px; text-align:center; margin-bottom:20px; border-radius:6px; }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+  header { background:#003366; color:white; text-align:center; padding:20px; }
+  header img { width:100%; max-height:120px; object-fit:contain; margin-top:10px; }
+  #content { padding:20px; max-width:900px; margin:auto; }
+  #postArea { background:white; padding:15px; border-radius:10px; margin-bottom:20px; }
+  input, textarea { width:100%; padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
+  button { padding:8px 12px; border:none; background:#003366; color:white; border-radius:5px; cursor:pointer; }
+  button:hover { background:#0055a5; }
+  .message { background:white; padding:10px; border-radius:8px; margin-bottom:10px; box-shadow:1px 1px 4px rgba(0,0,0,0.1);}
+  .message strong { display:block; }
+  .reply { margin-left:20px; font-size:0.9em; }
 </style>
 </head>
 <body>
 
 <header>
-<h2>Members Area – Jeremiah Grand Lodge, AF&AM</h2>
+  <h1>Members Portal</h1>
+  <p>Welcome! Post messages and reply to threads below.</p>
+  <img src="images/lodge-banner.svg" alt="Lodge Banner">
 </header>
 
-<div id="login">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-</div>
+<div id="content">
 
-<div id="content" class="hidden">
-  <button id="logoutBtn">Logout</button>
-  <button id="togglePosting" class="hidden">Disable Posting</button>
-
-  <div style="margin-top:20px;">
-    <input id="title" placeholder="Message Title">
+  <!-- Post Area -->
+  <div id="postArea">
+    <input id="title" placeholder="Post Title">
     <textarea id="body" placeholder="Write your message here..." rows="4"></textarea>
     <button id="postBtn">Post Message</button>
   </div>
 
-  <div id="posts"></div>
+  <!-- Messages Display -->
+  <div id="messages">
+    <!-- Placeholder: Messages will load here from Firebase -->
+  </div>
+
 </div>
 
 <script type="module" src="/members.js"></script>
