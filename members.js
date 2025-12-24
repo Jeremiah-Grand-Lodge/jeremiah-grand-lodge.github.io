@@ -41,21 +41,28 @@ loginBtn.onclick = () => signInWithEmailAndPassword(auth,email.value,password.va
 logoutBtn.onclick = () => signOut(auth);
 
 // ---------- POST ----------
-postBtn.onclick = async ()=>{
-  if(!title.value || !body.value) return alert("Enter title and message");
-  if(!allowPosting) return alert("Posting is disabled by admin");
-  const userRef = doc(db,"users",auth.currentUser.uid);
-  const userSnap = await getDoc(userRef);
-  const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
+postBtn.onclick = async () => {
+  if (!auth.currentUser) return alert("You must be logged in to post.");
+  if (!title.value || !body.value) return alert("Enter a title and message.");
 
-  await addDoc(collection(db,"posts"),{
-    title: title.value,
-    body: body.value,
-    ts: Date.now(),
-    name: displayName,
-    uid: auth.currentUser.uid
-  });
-  title.value=''; body.value='';
+  try {
+    const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
+    const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
+
+    await addDoc(collection(db,"posts"), {
+      title: title.value,
+      body: body.value,
+      ts: Date.now(),
+      name: displayName,
+      uid: auth.currentUser.uid
+    });
+
+    title.value = "";
+    body.value = "";
+  } catch(err) {
+    console.error(err);
+    alert("Error posting message. Check console.");
+  }
 };
 
 // ---------- AUTH STATE ----------
