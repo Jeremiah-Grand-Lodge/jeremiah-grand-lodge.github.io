@@ -1,63 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<meta charset="UTF-8">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-body{margin:0;font-family:Georgia,serif;background:#F7F6F2;color:#2E2E2E}
-header{background:#1F2A44;color:#fff;padding:20px;text-align:center}
-.section{max-width:900px;margin:30px auto;padding:0 20px}
-.post{background:#fff;border:1px solid #ddd;padding:15px;margin-bottom:15px}
-textarea,input{width:100%;padding:8px;margin:6px 0}
-button{background:#1F2A44;color:#fff;border:none;padding:10px 14px}
+body{font-family:Georgia,serif;background:#F7F6F2;padding:20px}
 .hidden{display:none}
+.post{background:#fff;padding:12px;border:1px solid #ddd;margin-bottom:10px}
 </style>
 </head>
 <body>
 
-<header>
-<h1>Members Area</h1>
-<div data-netlify-identity-button></div>
-</header>
+<h2>Members Area – Jeremiah Grand Lodge, AF&AM</h2>
 
-<div class="section hidden" id="content">
-<h2>Member Messages</h2>
+<div id="login">
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+</div>
 
+<div id="content" class="hidden">
+<button onclick="logout()">Logout</button>
+<h3>Member Messages</h3>
 <div id="posts"></div>
 
-<div id="newPost">
-<h3>New Message</h3>
-<input id="title" placeholder="Title">
-<textarea id="body" placeholder="Message"></textarea>
-<button onclick="addPost()">Post Message</button>
-</div>
+<h4>New Message</h4>
+<input id="title" placeholder="Title"><br>
+<textarea id="body"></textarea><br>
+<button onclick="post()">Post</button>
 </div>
 
 <script>
-let allowPosting = true;
-let posts = [];
+const firebaseConfig = const firebaseConfig = {
+  apiKey: "XXXXX",
+  authDomain: "XXXXX.firebaseapp.com",
+  projectId: "XXXXX",
+  storageBucket: "XXXXX.appspot.com",
+  messagingSenderId: "XXXXX",
+  appId: "XXXXX"
+};
+;
 
-function render(){
- document.getElementById('posts').innerHTML = posts.map(p =>
-  `<div class="post"><strong>${p.title}</strong><br>${p.body}</div>`
- ).join('');
- document.getElementById('newPost').style.display = allowPosting ? 'block':'none';
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user=>{
+ document.getElementById('login').classList.toggle('hidden',!!user);
+ document.getElementById('content').classList.toggle('hidden',!user);
+ load();
+});
+
+function login(){
+ auth.signInWithEmailAndPassword(email.value,password.value);
 }
 
-function addPost(){
- posts.unshift({title:title.value, body:body.value});
- title.value=''; body.value='';
- render();
+function logout(){ auth.signOut(); }
+
+function post(){
+ db.collection("posts").add({title:title.value,body:body.value,ts:Date.now()});
 }
 
-if(window.netlifyIdentity){
- netlifyIdentity.on("login", () => {
-  document.getElementById("content").classList.remove("hidden");
- });
- netlifyIdentity.on("logout", () => {
-  document.getElementById("content").classList.add("hidden");
+function load(){
+ db.collection("posts").orderBy("ts","desc").onSnapshot(s=>{
+  posts.innerHTML='';
+  s.forEach(d=>{
+   let p=d.data();
+   posts.innerHTML+=`<div class="post"><b>${p.title}</b><br>${p.body}</div>`;
+  });
  });
 }
 </script>
