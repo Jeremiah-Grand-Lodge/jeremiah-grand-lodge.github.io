@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<style>
+body{margin:0;font-family:Georgia,serif;background:#F7F6F2;color:#2E2E2E}
+header{background:#1F2A44;color:#fff;padding:20px;text-align:center}
+.section{max-width:900px;margin:30px auto;padding:0 20px}
+.post{background:#fff;border:1px solid #ddd;padding:15px;margin-bottom:15px}
+textarea,input{width:100%;padding:8px;margin:6px 0}
+button{background:#1F2A44;color:#fff;border:none;padding:10px 14px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Members Area</h1>
+<div data-netlify-identity-button></div>
+</header>
+
+<div class="section hidden" id="content">
+<h2>Member Messages</h2>
+
+<div id="posts"></div>
+
+<div id="newPost">
+<h3>New Message</h3>
+<input id="title" placeholder="Title">
+<textarea id="body" placeholder="Message"></textarea>
+<button onclick="addPost()">Post Message</button>
+</div>
+</div>
+
+<script>
+let allowPosting = true;
+let posts = [];
+
+function render(){
+ document.getElementById('posts').innerHTML = posts.map(p =>
+  `<div class="post"><strong>${p.title}</strong><br>${p.body}</div>`
+ ).join('');
+ document.getElementById('newPost').style.display = allowPosting ? 'block':'none';
+}
+
+function addPost(){
+ posts.unshift({title:title.value, body:body.value});
+ title.value=''; body.value='';
+ render();
+}
+
+if(window.netlifyIdentity){
+ netlifyIdentity.on("login", () => {
+  document.getElementById("content").classList.remove("hidden");
+ });
+ netlifyIdentity.on("logout", () => {
+  document.getElementById("content").classList.add("hidden");
+ });
+}
+</script>
+
+</body>
+</html>
