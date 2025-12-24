@@ -33,6 +33,8 @@ const password = document.getElementById('password');
 const title = document.getElementById('title');
 const body = document.getElementById('body');
 const togglePosting = document.getElementById("togglePosting");
+const messagesDiv = document.getElementById("messages");
+const adminEmails = ["stephanie.l.washington@gmail.com"];
 
 // ---------- LOGIN ----------
 loginBtn.onclick = () => signInWithEmailAndPassword(auth,email.value,password.value)
