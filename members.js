@@ -45,7 +45,7 @@ async function watchPostingSetting(){
   });
 }
 
-// ------------------ Load Messages & Replies ------------------
+// ------------------ Load Messages ------------------
 function loadPosts(){
   const q = query(collection(db,"posts"), orderBy("ts","desc"));
   onSnapshot(q, (querySnapshot) => {
@@ -55,7 +55,7 @@ function loadPosts(){
       const postDiv = document.createElement("div");
       postDiv.classList.add("message");
       postDiv.innerHTML = `
-        <strong>${data.name} — ${new Date(data.ts).toLocaleString()}</strong>
+        <div class="posterInfo">${data.name} — ${new Date(data.ts).toLocaleString()}</div>
         <h4>${data.title}</h4>
         <p>${data.body}</p>
         <button id="replyBtn-${docSnap.id}">Reply</button>
@@ -67,17 +67,19 @@ function loadPosts(){
       if(adminEmails.includes(auth.currentUser?.email)){
         const delBtn = document.createElement("button");
         delBtn.textContent = "Delete";
+        delBtn.classList.add("adminDelete");
         delBtn.onclick = async () => {
           if(confirm("Delete this post?")) await deleteDoc(doc(db,"posts",docSnap.id));
         };
         postDiv.appendChild(delBtn);
       }
 
-      // Reply button - inline textarea
+      // Inline reply
       const replyBtn = document.getElementById(`replyBtn-${docSnap.id}`);
       replyBtn.onclick = () => {
         const replyDiv = document.getElementById(`replies-${docSnap.id}`);
         if(replyDiv.querySelector("textarea")) return; // prevent multiple
+
         const textarea = document.createElement("textarea");
         textarea.rows = 2;
         textarea.placeholder = "Write your reply...";
@@ -102,7 +104,6 @@ function loadPosts(){
         replyDiv.appendChild(submitBtn);
       };
 
-      // Load existing replies
       loadReplies(docSnap.id);
     });
   });
@@ -113,14 +114,17 @@ function loadReplies(postId){
   const repliesDiv = document.getElementById(`replies-${postId}`);
   const q = query(collection(db,"posts",postId,"replies"), orderBy("ts","asc"));
   onSnapshot(q, snapshot=>{
-    repliesDiv.innerHTML = ""; // clear first
+    const activeTextarea = repliesDiv.querySelector("textarea");
+    repliesDiv.innerHTML = activeTextarea ? "" : "";
     snapshot.forEach(docSnap=>{
       const r = docSnap.data();
       const rDiv = document.createElement("div");
-      rDiv.innerHTML = `<strong>${r.name} — ${new Date(r.ts).toLocaleString()}</strong>
+      rDiv.classList.add("reply");
+      rDiv.innerHTML = `<div class="posterInfo">${r.name} — ${new Date(r.ts).toLocaleString()}</div>
                         <p>${r.body}</p>`;
       repliesDiv.appendChild(rDiv);
     });
+    if(activeTextarea) repliesDiv.appendChild(activeTextarea);
   });
 }
 
