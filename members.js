@@ -65,6 +65,13 @@ onAuthStateChanged(auth, async user=>{
 
   if(user){
     // Prompt Display Name if first login
+    if(adminEmails.includes(user.email)){
+     togglePosting.classList.remove("hidden");
+     togglePosting.onclick = async ()=>{
+    await setDoc(doc(db,"settings","site"), { allowPosting: !allowPosting });
+  };
+}
+    
     const userRef = doc(db,"users",user.uid);
     const userSnap = await getDoc(userRef);
     if(!userSnap.exists()){
