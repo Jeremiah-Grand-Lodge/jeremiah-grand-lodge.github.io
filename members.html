@@ -5,92 +5,52 @@
 <title>Members Area – Jeremiah Grand Lodge, AF&AM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {
-    font-family: Georgia, serif;
-    background: #F7F6F2;
-    padding: 20px;
-    color: #2E2E2E;
-}
-
+body { font-family: Georgia, serif; background: #F7F6F2; padding:20px; color:#2E2E2E; }
 h2 { text-align: center; margin-bottom: 20px; }
-
-.hidden { display: none; }
+.hidden { display:none; }
 
 #login input, #login button,
 #content input, #content textarea, #content button {
-    display: block;
-    margin: 8px 0;
-    padding: 8px;
-    font-size: 1rem;
-    width: 100%;
-    max-width: 400px;
+  display:block; margin:8px 0; padding:8px; font-size:1rem; width:100%; max-width:400px;
 }
 
-button { cursor: pointer; background: #1F2A44; color: #fff; border: none; }
+button { cursor:pointer; background:#1F2A44; color:#fff; border:none; border-radius:4px; }
 
-#posts { margin-top: 20px; }
+#posts { margin-top:30px; }
 
-.post {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-}
-
-.post small { color: #555; }
-
-.replies {
-    margin-top: 10px;
-    padding-left: 20px;
-    border-left: 2px solid #ccc;
-}
-
-.replies div {
-    background: #f9f9f9;
-    padding: 6px;
-    margin-bottom: 6px;
-    border-radius: 4px;
-}
-
-.replyInput, .replyBtn {
-    margin-top: 6px;
-    width: calc(100% - 10px);
-}
-
-.admin-btn {
-    background: #B53131;
-    margin-left: 10px;
-    padding: 4px 8px;
-    font-size: 0.9rem;
-}
+.post { background:#fff; border:1px solid #ddd; padding:12px; margin-bottom:20px; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+.post small { color:#555; display:block; margin-bottom:6px; }
+.replies { margin-top:10px; padding-left:20px; border-left:2px solid #ccc; }
+.replies div { background:#f9f9f9; padding:6px; margin-bottom:6px; border-radius:4px; }
+.replyInput, .replyBtn { margin-top:6px; width: calc(100% - 10px); }
+.admin-btn { background:#B53131; margin-left:10px; padding:4px 8px; font-size:0.9rem; }
+header { background:#1F2A44; color:#fff; padding:20px; text-align:center; margin-bottom:20px; border-radius:6px; }
 </style>
 </head>
 <body>
 
+<header>
 <h2>Members Area – Jeremiah Grand Lodge, AF&AM</h2>
+</header>
 
 <div id="login">
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button id="loginBtn">Login</button>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
 </div>
 
 <div id="content" class="hidden">
-    <button id="logoutBtn">Logout</button>
+  <button id="logoutBtn">Logout</button>
 
-    <h3>Member Messages</h3>
+  <div style="margin-top:20px;">
+    <input id="title" placeholder="Message Title">
+    <textarea id="body" placeholder="Write your message here..." rows="4"></textarea>
+    <button id="postBtn">Post Message</button>
+  </div>
 
-    <div>
-        <input id="title" placeholder="Message Title">
-        <textarea id="body" placeholder="Write your message here..." rows="4"></textarea>
-        <button id="postBtn">Post Message</button>
-    </div>
-
-    <div id="posts"></div>
+  <div id="posts"></div>
 </div>
 
 <script type="module" src="members.js"></script>
-
 </body>
 </html>
