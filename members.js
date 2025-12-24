@@ -12,18 +12,15 @@ const firebaseConfig = {
   messagingSenderId: "61539924326",
   appId: "1:61539924326:web:59444a2c1d9e48470070a7"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
 // ------------------ DOM Elements ------------------
-const loginForm = document.getElementById("loginForm"); // optional if login form exists
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-
 const postBtn = document.getElementById("postBtn");
 const title = document.getElementById("title");
 const body = document.getElementById("body");
@@ -64,16 +61,10 @@ function loadPosts(){
 
 // ------------------ Login / Logout ------------------
 loginBtn.onclick = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-  } catch(err) {
-    alert("Login failed: " + err.message);
-  }
+  try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); }
+  catch(err){ alert("Login failed: " + err.message); }
 };
-
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-};
+logoutBtn.onclick = async () => { await signOut(auth); };
 
 // ------------------ Post Message ------------------
 postBtn.onclick = async () => {
@@ -81,7 +72,7 @@ postBtn.onclick = async () => {
   if(!allowPosting) return alert("Posting is currently disabled by Admin.");
   if(!title.value || !body.value) return alert("Enter a title and message.");
 
-  try {
+  try{
     const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
     const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
 
@@ -93,15 +84,13 @@ postBtn.onclick = async () => {
       uid: auth.currentUser.uid
     });
 
-    title.value = "";
-    body.value = "";
-  } catch(err) {
-    console.error(err);
-    alert("Error posting message. Check console.");
+    title.value = ""; body.value = "";
+  } catch(err){
+    console.error(err); alert("Error posting message. Check console.");
   }
 };
 
-// ------------------ Admin Toggle Posting ------------------
+// ------------------ Admin Toggle ------------------
 if(togglePosting){
   togglePosting.onclick = async () => {
     const ref = doc(db,"settings","site");
