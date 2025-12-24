@@ -45,54 +45,72 @@ async function watchPostingSetting(){
   });
 }
 
-// ------------------ Load Messages ------------------
+
+// ------------------ Load Messages (inline replies version) ------------------
 function loadPosts(){
   const q = query(collection(db,"posts"), orderBy("ts","desc"));
   onSnapshot(q, (querySnapshot) => {
     messagesDiv.innerHTML = "";
     querySnapshot.forEach(docSnap => {
       const data = docSnap.data();
-      const msgDiv = document.createElement("div");
-      msgDiv.classList.add("message");
-      let adminButtons = "";
+      const postDiv = document.createElement("div");
+      postDiv.classList.add("message");
+      postDiv.innerHTML = `
+        <strong>${data.name} — ${new Date(data.ts).toLocaleString()}</strong>
+        <h4>${data.title}</h4>
+        <p>${data.body}</p>
+        <button id="replyBtn-${docSnap.id}">Reply</button>
+        <div id="replies-${docSnap.id}" class="replies"></div>
+      `;
+      messagesDiv.appendChild(postDiv);
 
-      // Admin delete button
+      // Admin delete
       if(adminEmails.includes(auth.currentUser?.email)){
-        adminButtons = `<button onclick="deletePost('${docSnap.id}')">Delete</button>`;
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = async () => {
+          if(confirm("Delete this post?")) await deleteDoc(doc(db,"posts",docSnap.id));
+        };
+        postDiv.appendChild(delBtn);
       }
 
-      // Reply button
-      const replyBtn = `<button onclick="replyToPost('${docSnap.id}')">Reply</button>`;
+      // Reply button - inline textarea
+      const replyBtn = document.getElementById(`replyBtn-${docSnap.id}`);
+      replyBtn.onclick = () => {
+        const replyDiv = document.getElementById(`replies-${docSnap.id}`);
+        // prevent multiple reply boxes
+        if(replyDiv.querySelector("textarea")) return;
 
-      msgDiv.innerHTML = `<strong>${data.name} — ${new Date(data.ts).toLocaleString()}</strong>
-                          <h4>${data.title}</h4>
-                          <p>${data.body}</p>
-                          ${replyBtn} ${adminButtons}
-                          <div id="replies-${docSnap.id}" class="replies"></div>`;
-      messagesDiv.appendChild(msgDiv);
+        const textarea = document.createElement("textarea");
+        textarea.rows = 2;
+        textarea.placeholder = "Write your reply...";
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Post Reply";
 
-      // Load replies
+        submitBtn.onclick = async () => {
+          if(!textarea.value) return alert("Enter a reply.");
+          const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
+          const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
+          await addDoc(collection(db,"posts",docSnap.id,"replies"), {
+            body: textarea.value,
+            ts: Date.now(),
+            name: displayName,
+            uid: auth.currentUser.uid
+          });
+          textarea.remove();
+          submitBtn.remove();
+        };
+
+        replyDiv.appendChild(textarea);
+        replyDiv.appendChild(submitBtn);
+      };
+
+      // Load existing replies
       loadReplies(docSnap.id);
     });
   });
 }
 
-// ------------------ Load Replies ------------------
-function loadReplies(postId){
-  const repliesDiv = document.getElementById(`replies-${postId}`);
-  const q = query(collection(db,"posts",postId,"replies"), orderBy("ts","asc"));
-  onSnapshot(q, snapshot=>{
-    repliesDiv.innerHTML = "";
-    snapshot.forEach(docSnap=>{
-      const r = docSnap.data();
-      const rDiv = document.createElement("div");
-      rDiv.style.marginLeft = "20px";
-      rDiv.innerHTML = `<strong>${r.name} — ${new Date(r.ts).toLocaleString()}</strong>
-                        <p>${r.body}</p>`;
-      repliesDiv.appendChild(rDiv);
-    });
-  });
-}
 
 // ------------------ Login / Logout ------------------
 loginBtn.onclick = async () => {
