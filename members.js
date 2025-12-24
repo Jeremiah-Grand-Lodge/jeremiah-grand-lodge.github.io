@@ -3,13 +3,13 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Paste your Firebase config object here:
-const firebaseConfig = const firebaseConfig = {
-  apiKey: "XXXXX",
-  authDomain: "XXXXX.firebaseapp.com",
-  projectId: "XXXXX",
-  storageBucket: "XXXXX.appspot.com",
-  messagingSenderId: "XXXXX",
-  appId: "XXXXX"
+const firebaseConfig = {
+  apiKey: "AIzaSyCkOuSyyy6w0tGEw5qQEEJtZ7kS5ybBeyI",
+  authDomain: "jeremiah-grand-lodge.firebaseapp.com",
+  projectId: "jeremiah-grand-lodge",
+  storageBucket: "jeremiah-grand-lodge.firebasestorage.app",
+  messagingSenderId: "61539924326",
+  appId: "1:61539924326:web:59444a2c1d9e48470070a7",
 };
 ;
 
