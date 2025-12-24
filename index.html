@@ -1,83 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jeremiah Grand Lodge, AF&AM</title>
-<style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f8f8f8; }
-  header { background:#003366; color:white; padding:20px; text-align:center; }
-  section { padding:20px; }
-  h1, h2 { margin:10px 0; }
-  .lodge-container { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
-  .card { background:white; border-radius:10px; padding:15px; width:220px; text-align:center;
-          box-shadow:2px 2px 8px rgba(0,0,0,0.1); }
-  .card img { width:60px; height:60px; margin-bottom:10px; }
-  a.button { display:inline-block; margin-top:10px; padding:8px 12px; background:#003366; color:white; border-radius:5px; text-decoration:none; }
-</style>
-</head>
-<body>
-<nav class="main-nav">
-  <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="members.html">Members Portal</a></li>
-    <li><a href="#messages">Message Board</a></li>
-  </ul>
-</nav>
+// ------------------ Firebase Imports ------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<header>
-  <h1>Welcome to Jeremiah Grand Lodge, AF&AM</h1>
-  <p>Connecting Brothers across all lodges. Explore our lodges and access the members-only portal.</p>
-  <a href="members.html" class="button">Go to Members Portal</a>
-</header>
+// ------------------ Firebase Config ------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyCkOuSyyy6w0tGEw5qQEEJtZ7kS5ybBeyI",
+  authDomain: "jeremiah-grand-lodge.firebaseapp.com",
+  projectId: "jeremiah-grand-lodge",
+  storageBucket: "jeremiah-grand-lodge.firebasestorage.app",
+  messagingSenderId: "61539924326",
+  appId: "1:61539924326:web:59444a2c1d9e48470070a7"
+};
 
-<section>
-  <h2>Our Lodges</h2>
-  <div class="lodge-container">
-    <!-- Blue Lodge 1 -->
-    <div class="card">
-      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
-      <h3>Blue Lodge #1</h3>
-      <p>Placeholder description of Lodge #1.</p>
-    </div>
-    <!-- Blue Lodge 2 -->
-    <div class="card">
-      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
-      <h3>Blue Lodge #2</h3>
-      <p>Placeholder description of Lodge #2.</p>
-    </div>
-    <!-- Blue Lodge 3 -->
-    <div class="card">
-      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
-      <h3>Blue Lodge #3</h3>
-      <p>Placeholder description of Lodge #3.</p>
-    </div>
-    <!-- Blue Lodge 4 -->
-    <div class="card">
-      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
-      <h3>Blue Lodge #4</h3>
-      <p>Placeholder description of Lodge #4.</p>
-    </div>
-    <!-- Blue Lodge 5 -->
-    <div class="card">
-      <img src="images/blue-lodge.svg" alt="Blue Lodge Icon">
-      <h3>Blue Lodge #5</h3>
-      <p>Placeholder description of Lodge #5.</p>
-    </div>
-    <!-- Shriner House -->
-    <div class="card">
-      <img src="images/shrine.svg" alt="Shriner House Icon">
-      <h3>Shriner House</h3>
-      <p>Placeholder description of the Shriner House.</p>
-    </div>
-    <!-- 33rd Degree House -->
-    <div class="card">
-      <img src="images/33rd-degree.svg" alt="33rd Degree Icon">
-      <h3>33rd Degree House</h3>
-      <p>Placeholder description of the 33rd Degree House.</p>
-    </div>
-  </div>
-</section>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore(app);
 
-</body>
-</html>
+// ------------------ DOM Elements ------------------
+const loginForm = document.getElementById("loginForm"); // optional if login form exists
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+const postBtn = document.getElementById("postBtn");
+const title = document.getElementById("title");
+const body = document.getElementById("body");
+const messagesDiv = document.getElementById("messages");
+const togglePosting = document.getElementById("togglePosting");
+
+// ------------------ Variables ------------------
+const adminEmails = ["stephanie.l.washington@gmail.com"];
+let allowPosting = true;
+
+// ------------------ Watch Posting Setting ------------------
+async function watchPostingSetting(){
+  const ref = doc(db,"settings","site");
+  onSnapshot(ref, snap=>{
+    if(snap.exists()) allowPosting = snap.data().allowPosting;
+    if(togglePosting){
+      togglePosting.textContent = allowPosting ? "Disable Posting" : "Enable Posting";
+    }
+  });
+}
+
+// ------------------ Load Messages ------------------
+function loadPosts(){
+  const q = query(collection(db,"posts"), orderBy("ts","desc"));
+  onSnapshot(q, (querySnapshot) => {
+    messagesDiv.innerHTML = "";
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message");
+      msgDiv.innerHTML = `<strong>${data.name} — ${new Date(data.ts).toLocaleString()}</strong>
+                          <h4>${data.title}</h4>
+                          <p>${data.body}</p>`;
+      messagesDiv.appendChild(msgDiv);
+    });
+  });
+}
+
+// ------------------ Login / Logout ------------------
+loginBtn.onclick = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+  } catch(err) {
+    alert("Login failed: " + err.message);
+  }
+};
+
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+};
+
+// ------------------ Post Message ------------------
+postBtn.onclick = async () => {
+  if(!auth.currentUser) return alert("You must be logged in to post.");
+  if(!allowPosting) return alert("Posting is currently disabled by Admin.");
+  if(!title.value || !body.value) return alert("Enter a title and message.");
+
+  try {
+    const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
+    const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
+
+    await addDoc(collection(db,"posts"), {
+      title: title.value,
+      body: body.value,
+      ts: Date.now(),
+      name: displayName,
+      uid: auth.currentUser.uid
+    });
+
+    title.value = "";
+    body.value = "";
+  } catch(err) {
+    console.error(err);
+    alert("Error posting message. Check console.");
+  }
+};
+
+// ------------------ Admin Toggle Posting ------------------
+if(togglePosting){
+  togglePosting.onclick = async () => {
+    const ref = doc(db,"settings","site");
+    await setDoc(ref, { allowPosting: !allowPosting });
+  };
+}
+
+// ------------------ Auth State ------------------
+onAuthStateChanged(auth, async user => {
+  if(user){
+    // Prompt for display name if first login
+    const userRef = doc(db,"users",user.uid);
+    const userSnap = await getDoc(userRef);
+    if(!userSnap.exists()){
+      let name = prompt("Welcome! Please enter your display name:");
+      if(!name) name = user.email;
+      await setDoc(userRef,{displayName:name});
+    }
+
+    // Show admin toggle if applicable
+    if(adminEmails.includes(user.email) && togglePosting){
+      togglePosting.classList.remove("hidden");
+    }
+
+    // Load posts & watch posting setting
+    loadPosts();
+    watchPostingSetting();
+  }
+});
