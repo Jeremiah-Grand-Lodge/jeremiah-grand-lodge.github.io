@@ -45,8 +45,7 @@ async function watchPostingSetting(){
   });
 }
 
-
-// ------------------ Load Messages (inline replies version) ------------------
+// ------------------ Load Messages & Replies ------------------
 function loadPosts(){
   const q = query(collection(db,"posts"), orderBy("ts","desc"));
   onSnapshot(q, (querySnapshot) => {
@@ -78,9 +77,7 @@ function loadPosts(){
       const replyBtn = document.getElementById(`replyBtn-${docSnap.id}`);
       replyBtn.onclick = () => {
         const replyDiv = document.getElementById(`replies-${docSnap.id}`);
-        // prevent multiple reply boxes
-        if(replyDiv.querySelector("textarea")) return;
-
+        if(replyDiv.querySelector("textarea")) return; // prevent multiple
         const textarea = document.createElement("textarea");
         textarea.rows = 2;
         textarea.placeholder = "Write your reply...";
@@ -111,19 +108,29 @@ function loadPosts(){
   });
 }
 
+// ------------------ Load Replies ------------------
+function loadReplies(postId){
+  const repliesDiv = document.getElementById(`replies-${postId}`);
+  const q = query(collection(db,"posts",postId,"replies"), orderBy("ts","asc"));
+  onSnapshot(q, snapshot=>{
+    repliesDiv.innerHTML = ""; // clear first
+    snapshot.forEach(docSnap=>{
+      const r = docSnap.data();
+      const rDiv = document.createElement("div");
+      rDiv.innerHTML = `<strong>${r.name} — ${new Date(r.ts).toLocaleString()}</strong>
+                        <p>${r.body}</p>`;
+      repliesDiv.appendChild(rDiv);
+    });
+  });
+}
 
 // ------------------ Login / Logout ------------------
 loginBtn.onclick = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-  } catch(err) {
-    alert("Login failed: " + err.message);
-  }
+  try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); }
+  catch(err){ alert("Login failed: " + err.message); }
 };
 
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-};
+logoutBtn.onclick = async () => { await signOut(auth); };
 
 // ------------------ Post Message ------------------
 postBtn.onclick = async () => {
@@ -134,7 +141,6 @@ postBtn.onclick = async () => {
   try{
     const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
     const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
-
     await addDoc(collection(db,"posts"), {
       title: title.value,
       body: body.value,
@@ -142,32 +148,8 @@ postBtn.onclick = async () => {
       name: displayName,
       uid: auth.currentUser.uid
     });
-
     title.value = ""; body.value = "";
-  } catch(err){
-    console.error(err); alert("Error posting message. Check console.");
-  }
-};
-
-// ------------------ Reply to Post ------------------
-window.replyToPost = async (postId) => {
-  const replyText = prompt("Enter your reply:");
-  if(!replyText) return;
-  const userSnap = await getDoc(doc(db,"users",auth.currentUser.uid));
-  const displayName = userSnap.exists() ? userSnap.data().displayName : auth.currentUser.email;
-  await addDoc(collection(db,"posts",postId,"replies"),{
-    body: replyText,
-    ts: Date.now(),
-    name: displayName,
-    uid: auth.currentUser.uid
-  });
-};
-
-// ------------------ Delete Post (Admin) ------------------
-window.deletePost = async (postId) => {
-  if(!adminEmails.includes(auth.currentUser?.email)) return;
-  if(!confirm("Are you sure you want to delete this post?")) return;
-  await deleteDoc(doc(db,"posts",postId));
+  } catch(err){ console.error(err); alert("Error posting message."); }
 };
 
 // ------------------ Admin Toggle ------------------
@@ -181,10 +163,12 @@ if(togglePosting){
 // ------------------ Auth State ------------------
 onAuthStateChanged(auth, async user => {
   if(user){
-    // Hide login inputs, show logout
     loginArea.style.display = "none";
     postArea.style.display = allowPosting ? "block" : "none";
     logoutBtn.style.display = "inline-block";
+    if(adminEmails.includes(user.email) && togglePosting){
+      togglePosting.classList.remove("hidden");
+    }
 
     // Prompt for display name if first login
     const userRef = doc(db,"users",user.uid);
@@ -195,20 +179,14 @@ onAuthStateChanged(auth, async user => {
       await setDoc(userRef,{displayName:name});
     }
 
-    // Show admin toggle if applicable
-    if(adminEmails.includes(user.email) && togglePosting){
-      togglePosting.classList.remove("hidden");
-    }
-
-    // Load posts & watch posting setting **ONLY after login**
+    // Load posts & watch settings
     loadPosts();
     watchPostingSetting();
   } else {
-    // Logged out: show login, hide posting, hide messages
     loginArea.style.display = "block";
     postArea.style.display = "none";
     logoutBtn.style.display = "none";
-    messagesDiv.innerHTML = "";           // <--- hide all messages
+    messagesDiv.innerHTML = ""; // hide posts when logged out
     if(togglePosting) togglePosting.classList.add("hidden");
   }
 });
