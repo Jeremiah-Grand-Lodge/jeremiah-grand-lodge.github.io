@@ -50,21 +50,26 @@ postBtn.onclick = async ()=>{
 
 // ---------- AUTH STATE ----------
 onAuthStateChanged(auth, async user => {
+    // Show/hide login and content sections
     login.classList.toggle("hidden", !!user);
     content.classList.toggle("hidden", !user);
 
     if(user){
-        // Check for displayName in Firestore
-        const userRef = doc(db,"users",user.uid);
-        const userSnap = await getDoc(userRef);
-        if(!userSnap.exists()){
+        // Check if this user already has a displayName in Firestore
+        const userRef = doc(db,"users",user.uid);      // Firestore path: users/{uid}
+        const userSnap = await getDoc(userRef);        // Get document
+        if(!userSnap.exists()){                        // If no document exists
+            // PROMPT the user for their Display Name
             let name = prompt("Welcome! Please enter your display name:");
-            if(!name) name = user.email;
-            await setDoc(userRef,{displayName:name});
+            if(!name) name = user.email;              // fallback if they cancel
+            await setDoc(userRef,{displayName:name}); // Save to Firestore
         }
+
+        // Now that we have a displayName, load the posts
         loadPosts();
     }
 });
+
 
 // ---------- LOAD POSTS & REPLIES ----------
 async function loadPosts(){
