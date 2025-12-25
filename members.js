@@ -113,20 +113,44 @@ function loadPosts(){
 function loadReplies(postId){
   const repliesDiv = document.getElementById(`replies-${postId}`);
   const q = query(collection(db,"posts",postId,"replies"), orderBy("ts","asc"));
+
   onSnapshot(q, snapshot=>{
-    const activeTextarea = repliesDiv.querySelector("textarea");
-    repliesDiv.innerHTML = activeTextarea ? "" : "";
+    repliesDiv.innerHTML = "";
+
     snapshot.forEach(docSnap=>{
       const r = docSnap.data();
+      const replyId = docSnap.id;
+
       const rDiv = document.createElement("div");
       rDiv.classList.add("reply");
-      rDiv.innerHTML = `<div class="posterInfo">${r.name} — ${new Date(r.ts).toLocaleString()}</div>
-                        <p>${r.body}</p>`;
+
+      let delBtn = "";
+      if(adminEmails.includes(auth.currentUser?.email)){
+        delBtn = `<button class="adminDelete" data-post="${postId}" data-reply="${replyId}">Delete Reply</button>`;
+      }
+
+      rDiv.innerHTML = `
+        <div class="posterInfo">${r.name} — ${new Date(r.ts).toLocaleString()}</div>
+        <p>${r.body}</p>
+        ${delBtn}
+      `;
+
       repliesDiv.appendChild(rDiv);
     });
-    if(activeTextarea) repliesDiv.appendChild(activeTextarea);
+
+    // Attach delete handlers
+    document.querySelectorAll(".adminDelete").forEach(btn=>{
+      btn.onclick = async ()=>{
+        const postId = btn.dataset.post;
+        const replyId = btn.dataset.reply;
+        if(confirm("Delete this reply?")){
+          await deleteDoc(doc(db,"posts",postId,"replies",replyId));
+        }
+      };
+    });
   });
 }
+
 
 // ------------------ Login / Logout ------------------
 loginBtn.onclick = async () => {
