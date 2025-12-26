@@ -28,7 +28,7 @@
     border:1px solid #ccc;
     box-sizing:border-box;
   }
-  #postArea { background:white; padding:15px; border-radius:10px; margin-bottom:20px; }
+  #postArea { background:white; padding:15px; border-radius:10px; margin-bottom:20px; display:none; }
 
   button { padding:8px 12px; border:none; background:#003366; color:white; border-radius:5px; cursor:pointer; }
   button:hover { background:#0055a5; }
@@ -60,14 +60,6 @@
 
   /* Admin delete button */
   .adminDelete { background:red !important; margin-left:10px; }
-  .reply {
-  background:#ffffff;
-  padding:8px;
-  border-radius:6px;
-  margin-bottom:6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
 
   .hidden { display:none; }
 </style>
@@ -101,11 +93,10 @@
     <button id="loginBtn">Login</button>
   </div>
 
-  <!--
-  <!-- Post Area -->
-  <div id="postArea" class="hidden">
-    <input id="title" placeholder="Post title">
-    <textarea id="body" rows="4" placeholder="Write your message here..."></textarea>
+  <!-- Post Section -->
+  <div id="postArea">
+    <input id="title" placeholder="Title" type="text">
+    <textarea id="body" placeholder="Write your message..."></textarea>
     <button id="postBtn">Post Message</button>
   </div>
 
@@ -114,7 +105,6 @@
 
 </div>
 
-<!-- LOAD JAVASCRIPT -->
 <script type="module" src="members.js"></script>
 
 </body>
