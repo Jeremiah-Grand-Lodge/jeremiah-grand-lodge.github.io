@@ -80,15 +80,15 @@ msgDiv.innerHTML = `
     });
 
     // Post delete
-    document.querySelectorAll(".adminDelete").forEach(btn=>{
-      if(btn.dataset.id){
-        btn.onclick = async ()=>{
-          if(confirm("Delete this entire thread?")){
-            await deleteDoc(doc(db,"posts", btn.dataset.id));
-          }
-        };
-      }
-    });
+    // Delete entire thread
+document.querySelectorAll(".postDelete").forEach(btn=>{
+  btn.onclick = async ()=>{
+    if(confirm("Delete this entire thread and all replies?")){
+      await deleteDoc(doc(db,"posts", btn.dataset.post));
+    }
+  };
+});
+
 
     // Reply button
     document.querySelectorAll(".replyBtn").forEach(btn=>{
