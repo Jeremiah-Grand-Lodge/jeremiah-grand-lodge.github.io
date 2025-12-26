@@ -59,19 +59,20 @@ function loadPosts(){
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("message");
 
-      let adminBtn = "";
-      if(adminEmails.includes(auth.currentUser?.email)){
-        adminBtn = `<button class="adminDelete postDelete" data-post="${postId}">Delete Thread</button>`;
-      }
+     let adminBtn = "";
+if(adminEmails.includes(auth.currentUser?.email)){
+  adminBtn = `<button class="adminDelete postDelete" data-post="${postId}">Delete Thread</button>`;
+}
 
-      msgDiv.innerHTML = `
-        <div class="posterInfo">${p.name} — ${new Date(p.ts).toLocaleString()}</div>
-        <h4>${p.title}</h4>
-        <p>${p.body}</p>
-        <button class="replyBtn" data-id="${postId}">Reply</button>
-        ${adminBtn}
-        <div class="replies" id="replies-${postId}"></div>
-      `;
+msgDiv.innerHTML = `
+  <div class="posterInfo">${p.name} — ${new Date(p.ts).toLocaleString()}</div>
+  <h4>${p.title}</h4>
+  <p>${p.body}</p>
+  <button class="replyBtn" data-id="${postId}">Reply</button>
+  ${adminBtn}
+  <div class="replies" id="replies-${postId}"></div>
+`;
+
 
       messagesDiv.appendChild(msgDiv);
 
