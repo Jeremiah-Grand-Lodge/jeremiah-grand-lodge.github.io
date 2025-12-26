@@ -63,7 +63,7 @@ function loadPosts(){
 
       let adminBtn = "";
       if(adminEmails.includes(auth.currentUser?.email)){
-        adminBtn = `<button class="adminDelete" data-id="${postId}">Delete</button>`;
+        adminBtn = `<button class="adminDelete postDelete" data-post="${postId}">Delete Thread</button>`;
       }
 
       msgDiv.innerHTML = `
@@ -144,7 +144,7 @@ function loadReplies(postId){
 
       let delBtn = "";
       if(adminEmails.includes(auth.currentUser?.email)){
-        delBtn = `<button class="adminDelete" data-post="${postId}" data-reply="${replyId}">Delete Reply</button>`;
+        delBtn = `<button class="adminDelete replyDelete" data-post="${postId}" data-reply="${replyId}">Delete Reply</button>`;
       }
 
       rDiv.innerHTML = `
@@ -157,16 +157,23 @@ function loadReplies(postId){
     });
 
     // Attach delete handlers
-    document.querySelectorAll(".adminDelete").forEach(btn=>{
-      btn.onclick = async ()=>{
-        const postId = btn.dataset.post;
-        const replyId = btn.dataset.reply;
-        if(confirm("Delete this reply?")){
-          await deleteDoc(doc(db,"posts",postId,"replies",replyId));
-        }
-      };
-    });
-  });
+    // Delete entire thread
+document.querySelectorAll(".postDelete").forEach(btn=>{
+  btn.onclick = async ()=>{
+    if(confirm("Delete this entire thread and all replies?")){
+      await deleteDoc(doc(db,"posts", btn.dataset.post));
+    }
+  };
+});
+
+// Delete individual reply
+document.querySelectorAll(".replyDelete").forEach(btn=>{
+  btn.onclick = async ()=>{
+    if(confirm("Delete this reply?")){
+      await deleteDoc(doc(db,"posts", btn.dataset.post,"replies",btn.dataset.reply));
+    }
+  };
+});
 }
 
 
